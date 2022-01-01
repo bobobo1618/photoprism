@@ -55,6 +55,7 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt dist-upgrade 2>/dev/null &
     libnss3 \
     libxtst6 \
     librsvg2-bin \
+    libvips-dev \
     pkg-config \
     software-properties-common \
     rsync \

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 
+	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/disintegration/imaging"
 
 	"github.com/photoprism/photoprism/pkg/fs"
@@ -86,6 +88,14 @@ func FromFile(imageFilename, hash, thumbPath string, width, height, orientation 
 		return "", err
 	}
 
+	if InvalidSize(width) {
+		return "", fmt.Errorf("resample: width has an invalid value (%d)", width)
+	}
+
+	if InvalidSize(height) {
+		return "", fmt.Errorf("resample: height has an invalid value (%d)", height)
+	}
+
 	// Generate thumb cache filename.
 	fileName, err = FileName(hash, thumbPath, width, height, opts...)
 
@@ -95,7 +105,7 @@ func FromFile(imageFilename, hash, thumbPath string, width, height, orientation 
 	}
 
 	// Load image from storage.
-	img, err := Open(imageFilename, orientation)
+	img, err := vips.NewImageFromFile(imageFilename)
 
 	if err != nil {
 		log.Error(err)
@@ -103,7 +113,32 @@ func FromFile(imageFilename, hash, thumbPath string, width, height, orientation 
 	}
 
 	// Create thumb from image.
-	if _, err := Create(img, fileName, width, height, opts...); err != nil {
+	if err := img.AutoRotate(); err != nil {
+		return "", err
+	}
+	if err := img.Thumbnail(width, height, vips.InterestingNone); err != nil {
+		return "", err
+	}
+	if err := img.RemoveMetadata(); err != nil {
+		return "", err
+	}
+	var imageBytes []byte
+	if filepath.Ext(fileName) == "."+string(fs.FormatPng) {
+		params := vips.NewPngExportParams()
+		imageBytes, _, err = img.ExportPng(params)
+	} else {
+		params := vips.NewJpegExportParams()
+		if width <= 150 && height <= 150 {
+			params.Quality = JpegQualitySmall
+		}
+		imageBytes, _, err = img.ExportJpeg(params)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	if err = ioutil.WriteFile(fileName, imageBytes, 0644); err != nil {
 		return "", err
 	}
 

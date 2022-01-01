@@ -32,6 +32,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"github.com/davidbyttow/govips/v2/vips"
 
 	"github.com/photoprism/photoprism/internal/commands"
 	"github.com/photoprism/photoprism/internal/config"
@@ -77,6 +78,9 @@ func main() {
 		commands.ConfigCommand,
 		commands.VersionCommand,
 	}
+
+	vips.Startup(nil)
+	defer vips.Shutdown()
 
 	if err := app.Run(os.Args); err != nil {
 		log.Error(err)

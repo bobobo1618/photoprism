@@ -68,6 +68,7 @@ require (
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davidbyttow/govips/v2 v2.9.0 // indirect
 	github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd // indirect
 	github.com/dsoprea/go-utility/v2 v2.0.0-20200717064901-2fccff4aa15e // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect

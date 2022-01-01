@@ -942,6 +942,10 @@ func (m *MediaFile) ResampleDefault(thumbPath string, force bool) (err error) {
 	var sourceName thumb.Name
 
 	for _, name := range thumb.DefaultSizes {
+		if _, err := m.Resample(thumbPath, name); err != nil {
+			return err
+		}
+		continue
 		size := thumb.Sizes[name]
 
 		if size.Uncached() {
